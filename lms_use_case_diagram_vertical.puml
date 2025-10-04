@@ -1,0 +1,22 @@
+@startuml
+top to bottom direction
+
+actor Admin
+actor Teacher
+actor Student
+
+Admin --> (Manage Users)
+Admin --> (Manage Courses)
+Admin --> (View Reports)
+
+Teacher --> (Create Course Content)
+Teacher --> (Grade Assignments)
+Teacher --> (Interact with Students)
+Teacher --> (View Student Progress)
+
+Student --> (Enroll in Courses)
+Student --> (Access Course Materials)
+Student --> (Submit Assignments)
+Student --> (Participate in Discussions)
+Student --> (View Grades)
+@enduml
