@@ -73,22 +73,21 @@ app.use('*', (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
+const MONGODB_URI = process.env.MONGODB_URI;
+
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
   .then(() => {
     console.log('Connected to MongoDB');
-    console.log('Database URI:', process.env.MONGODB_URI);
+    console.log('Database URI:', MONGODB_URI);
 
     // Start server
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      if (process.env.NODE_ENV === 'development') {
-        console.log('To create admin user, run: npm run create-admin');
-      }
     });
   })
   .catch((error) => {
@@ -99,6 +98,5 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log('Unhandled Promise Rejection:', err.message);
-  // Close server & exit process
   process.exit(1);
 });
