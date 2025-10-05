@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -32,11 +32,7 @@ const CourseMaterials = () => {
     isFree: false
   });
 
-  useEffect(() => {
-    fetchCourse();
-  }, [id]);
-
-  const fetchCourse = async () => {
+  const fetchCourse = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/${id}`);
       setCourse(response.data);
@@ -46,7 +42,11 @@ const CourseMaterials = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchCourse();
+  }, [fetchCourse]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -121,7 +121,7 @@ const CourseMaterials = () => {
     return <div className="text-center py-12">Course not found</div>;
   }
 
-  const canEdit = user?.role === 'instructor' && course.instructor._id === user._id || user?.role === 'admin';
+  const canEdit = (user?.role === 'instructor' && course.instructor._id === user._id) || user?.role === 'admin';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

@@ -56,7 +56,7 @@ const CreateCourse = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
     
     setFormData(prev => ({
       ...prev,
