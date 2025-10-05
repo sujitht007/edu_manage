@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import {
   ChartBarIcon,
@@ -17,11 +16,7 @@ const CoursePerformance = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchPerformanceData();
-  }, [id]);
-
-  const fetchPerformanceData = async () => {
+  const fetchPerformanceData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/courses/${id}/performance`);
@@ -32,7 +27,11 @@ const CoursePerformance = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchPerformanceData();
+  }, [id, fetchPerformanceData]);
 
   const getPerformanceColor = (value, thresholds = { good: 80, fair: 60 }) => {
     if (value >= thresholds.good) return 'text-green-600';

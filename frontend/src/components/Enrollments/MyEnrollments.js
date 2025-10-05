@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -16,11 +16,7 @@ const MyEnrollments = () => {
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchEnrollments();
-  }, []);
-
-  const fetchEnrollments = async () => {
+  const fetchEnrollments = useCallback(async () => {
     try {
       const response = await axios.get(`/api/enrollments/student/${user._id}`);
       setEnrollments(response.data);
@@ -29,7 +25,11 @@ const MyEnrollments = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user._id]);
+
+  useEffect(() => {
+    fetchEnrollments();
+  }, [fetchEnrollments]);
 
   const getStatusColor = (status) => {
     switch (status) {

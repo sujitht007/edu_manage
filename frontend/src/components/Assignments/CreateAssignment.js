@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -28,18 +28,18 @@ const CreateAssignment = () => {
     rubric: []
   });
 
-  useEffect(() => {
-    fetchInstructorCourses();
-  }, []);
-
-  const fetchInstructorCourses = async () => {
+  const fetchInstructorCourses = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/instructor/${user._id}`);
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
-  };
+  }, [user._id]);
+
+  useEffect(() => {
+    fetchInstructorCourses();
+  }, [fetchInstructorCourses]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -146,13 +146,6 @@ const CreateAssignment = () => {
     { value: 'png', label: 'PNG' },
     { value: 'zip', label: 'ZIP' }
   ];
-
-  // Get minimum date (tomorrow)
-  const getMinDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  };
 
   // Get minimum datetime (current time + 1 hour)
   const getMinDateTime = () => {

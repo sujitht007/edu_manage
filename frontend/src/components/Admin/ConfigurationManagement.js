@@ -1,18 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import {
-  CogIcon,
   PlusIcon,
-  PencilIcon,
   TrashIcon,
   ArrowPathIcon,
   EyeIcon,
   EyeSlashIcon,
   MagnifyingGlassIcon,
-  FunnelIcon,
-  DocumentArrowDownIcon,
-  DocumentArrowUpIcon
+  DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
@@ -24,7 +20,6 @@ const ConfigurationManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showPublicOnly, setShowPublicOnly] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingConfig, setEditingConfig] = useState(null);
   const [showPassword, setShowPassword] = useState({});
   const [pagination, setPagination] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,12 +38,7 @@ const ConfigurationManagement = () => {
     tags: []
   });
 
-  useEffect(() => {
-    fetchConfigurations();
-    fetchCategories();
-  }, [currentPage, selectedCategory, searchTerm, showPublicOnly]);
-
-  const fetchConfigurations = async () => {
+  const fetchConfigurations = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -69,7 +59,12 @@ const ConfigurationManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, selectedCategory, searchTerm, showPublicOnly]);
+
+  useEffect(() => {
+    fetchConfigurations();
+    fetchCategories();
+  }, [currentPage, selectedCategory, searchTerm, showPublicOnly, fetchConfigurations]);
 
   const fetchCategories = async () => {
     try {
