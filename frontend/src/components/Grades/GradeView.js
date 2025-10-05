@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { 
@@ -16,21 +16,7 @@ const GradeView = () => {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user?.role === 'student') {
-      fetchStudentGrades();
-    } else {
-      fetchInstructorCourses();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (selectedCourse && user?.role !== 'student') {
-      fetchCourseGrades();
-    }
-  }, [selectedCourse]);
-
-  const fetchStudentGrades = async () => {
+  const fetchStudentGrades = useCallback(async () => {
     try {
       const response = await axios.get(`/api/grades/student/${user._id}`);
       setGrades(response.data);
@@ -39,9 +25,9 @@ const GradeView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
 
-  const fetchInstructorCourses = async () => {
+  const fetchInstructorCourses = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/instructor/${user._id}`);
       setCourses(response.data);
@@ -53,16 +39,30 @@ const GradeView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
 
-  const fetchCourseGrades = async () => {
+  const fetchCourseGrades = useCallback(async () => {
     try {
       const response = await axios.get(`/api/grades/course/${selectedCourse}`);
       setGrades(response.data);
     } catch (error) {
       console.error('Error fetching course grades:', error);
     }
-  };
+  }, [selectedCourse]);
+
+  useEffect(() => {
+    if (user?.role === 'student') {
+      fetchStudentGrades();
+    } else {
+      fetchInstructorCourses();
+    }
+  }, [fetchInstructorCourses, fetchStudentGrades, user?.role]);
+
+  useEffect(() => {
+    if (selectedCourse && user?.role !== 'student') {
+      fetchCourseGrades();
+    }
+  }, [selectedCourse, user?.role, fetchCourseGrades]);
 
   const calculateGPA = (grades) => {
     if (grades.length === 0) return 0;

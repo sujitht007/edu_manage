@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -17,11 +17,7 @@ const StudentDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const [enrollmentsRes, assignmentsRes, gradesRes] = await Promise.all([
         axios.get(`/api/enrollments/student/${user._id}`),
@@ -39,7 +35,11 @@ const StudentDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   if (loading) {
     return <LoadingSpinner />;

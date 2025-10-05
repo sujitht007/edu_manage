@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
   PaperAirplaneIcon,
@@ -23,12 +23,7 @@ const Messages = () => {
     priority: 'normal'
   });
 
-  useEffect(() => {
-    fetchMessages();
-    fetchUsers();
-  }, [activeTab]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
       const endpoint = activeTab === 'inbox' ? '/api/messages/inbox' : '/api/messages/sent';
@@ -40,16 +35,21 @@ const Messages = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get('/api/messages/users');
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchMessages();
+    fetchUsers();
+  }, [activeTab, fetchMessages, fetchUsers]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();

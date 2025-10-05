@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "build": "echo 'No build step required for Node.js'",
+    "postinstall": "echo 'Dependencies installed successfully'",
     "create-admin": "node scripts/seedData.js",
     "setup-production": "node scripts/setupProduction.js",
     "seed-config": "node scripts/seedConfigurations.js",
@@ -30,6 +32,18 @@
     "nodemon": "^3.1.10"
   },
   "engines": {
-    "node": ">=20.0.0"
-  }
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "education",
+    "management",
+    "system",
+    "api",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }

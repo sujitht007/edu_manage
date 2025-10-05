@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -32,9 +32,9 @@ const AssignmentDetail = () => {
     if (user?.role === 'student') {
       fetchSubmission();
     }
-  }, [id]);
+  }, [id, user?.role, fetchAssignmentDetails, fetchSubmission]);
 
-  const fetchAssignmentDetails = async () => {
+  const fetchAssignmentDetails = useCallback(async () => {
     try {
       const response = await axios.get(`/api/assignments/${id}`);
       setAssignment(response.data);
@@ -45,16 +45,16 @@ const AssignmentDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
-  const fetchSubmission = async () => {
+  const fetchSubmission = useCallback(async () => {
     try {
       const response = await axios.get(`/api/submissions/assignment/${id}/student/${user._id}`);
       setSubmission(response.data);
     } catch (error) {
       // No submission found - this is normal
     }
-  };
+  }, [id, user?._id]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);

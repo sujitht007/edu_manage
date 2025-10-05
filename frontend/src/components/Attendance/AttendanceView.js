@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { 
@@ -27,22 +27,7 @@ const AttendanceView = () => {
     duration: 60
   });
 
-  useEffect(() => {
-    if (user?.role === 'student') {
-      fetchStudentAttendance();
-    } else {
-      fetchInstructorCourses();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (selectedCourse && user?.role !== 'student') {
-      fetchCourseAttendance();
-      fetchEnrolledStudents();
-    }
-  }, [selectedCourse]);
-
-  const fetchStudentAttendance = async () => {
+  const fetchStudentAttendance = useCallback(async () => {
     try {
       const response = await axios.get(`/api/attendance/student/${user._id}`);
       setAttendanceData(response.data);
@@ -51,9 +36,9 @@ const AttendanceView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
 
-  const fetchInstructorCourses = async () => {
+  const fetchInstructorCourses = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/instructor/${user._id}`);
       setCourses(response.data);
@@ -65,18 +50,18 @@ const AttendanceView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
 
-  const fetchCourseAttendance = async () => {
+  const fetchCourseAttendance = useCallback(async () => {
     try {
       const response = await axios.get(`/api/attendance/course/${selectedCourse}`);
       setAttendanceData(response.data);
     } catch (error) {
       console.error('Error fetching course attendance:', error);
     }
-  };
+  }, [selectedCourse]);
 
-  const fetchEnrolledStudents = async () => {
+  const fetchEnrolledStudents = useCallback(async () => {
     try {
       const response = await axios.get(`/api/enrollments/course/${selectedCourse}`);
       const students = response.data.map(enrollment => ({
@@ -88,7 +73,22 @@ const AttendanceView = () => {
     } catch (error) {
       console.error('Error fetching students:', error);
     }
-  };
+  }, [selectedCourse]);
+
+  useEffect(() => {
+    if (user?.role === 'student') {
+      fetchStudentAttendance();
+    } else {
+      fetchInstructorCourses();
+    }
+  }, [fetchStudentAttendance, fetchInstructorCourses, user?.role]);
+
+  useEffect(() => {
+    if (selectedCourse && user?.role !== 'student') {
+      fetchCourseAttendance();
+      fetchEnrolledStudents();
+    }
+  }, [selectedCourse, user?.role, fetchCourseAttendance, fetchEnrolledStudents]);
 
   const handleStudentStatusChange = (studentId, status) => {
     setAttendanceForm(prev => ({

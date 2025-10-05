@@ -25,7 +25,7 @@ import {
 const HomePage = () => {
   const currentYear = new Date().getFullYear();
   const { user } = useAuth();
-  const { siteName, siteDescription, studentRegistrationOpen, instructorRegistrationOpen } = useConfig();
+  const { siteName, studentRegistrationOpen, instructorRegistrationOpen } = useConfig();
   const [platformStats, setPlatformStats] = useState({
     totalStudents: 0,
     activeCourses: 0,

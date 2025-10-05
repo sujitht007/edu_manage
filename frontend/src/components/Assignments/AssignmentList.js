@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -21,20 +21,8 @@ const AssignmentList = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [courses, setCourses] = useState([]);
 
-  useEffect(() => {
-    fetchAssignments();
-    if (user?.role === 'student') {
-      fetchEnrolledCourses();
-    } else {
-      fetchInstructorCourses();
-    }
-  }, []);
 
-  useEffect(() => {
-    fetchAssignments();
-  }, [selectedCourse, selectedStatus]);
-
-  const fetchAssignments = async () => {
+  const fetchAssignments = useCallback(async () => {
     try {
       setLoading(true);
       let url = '/api/assignments';
@@ -50,25 +38,38 @@ const AssignmentList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCourse]);
 
-  const fetchEnrolledCourses = async () => {
+  const fetchEnrolledCourses = useCallback(async () => {
     try {
       const response = await axios.get(`/api/enrollments/student/${user._id}`);
       setCourses(response.data.map(enrollment => enrollment.course));
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
-  };
+  }, [user?._id]);
 
-  const fetchInstructorCourses = async () => {
+  const fetchInstructorCourses = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/instructor/${user._id}`);
       setCourses(response.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
-  };
+  }, [user?._id]);
+
+  useEffect(() => {
+    fetchAssignments();
+    if (user?.role === 'student') {
+      fetchEnrolledCourses();
+    } else {
+      fetchInstructorCourses();
+    }
+  }, [fetchAssignments, fetchEnrolledCourses, fetchInstructorCourses, user?.role]);
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [selectedCourse, selectedStatus, fetchAssignments]);
 
   const formatDueDate = (dueDate) => {
     if (!dueDate) return 'No due date';

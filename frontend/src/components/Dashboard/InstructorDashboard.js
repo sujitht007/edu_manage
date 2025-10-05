@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -19,12 +19,7 @@ const InstructorDashboard = () => {
   const [coursePerformance, setCoursePerformance] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-    fetchCoursePerformance();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const response = await axios.get('/api/analytics/dashboard');
       setDashboardData(response.data);
@@ -33,9 +28,9 @@ const InstructorDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchCoursePerformance = async () => {
+  const fetchCoursePerformance = useCallback(async () => {
     try {
       // First get instructor's courses
       const coursesResponse = await axios.get(`/api/courses/instructor/${user._id}`);
@@ -65,7 +60,12 @@ const InstructorDashboard = () => {
     } catch (error) {
       console.error('Error fetching course performance:', error);
     }
-  };
+  }, [user?._id]);
+
+  useEffect(() => {
+    fetchDashboardData();
+    fetchCoursePerformance();
+  }, [fetchDashboardData, fetchCoursePerformance]);
 
   if (loading) {
     return <LoadingSpinner />;

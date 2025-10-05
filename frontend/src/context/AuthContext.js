@@ -1,9 +1,9 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
 // Set axios defaults
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const AuthContext = createContext();
 
@@ -19,17 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       const response = await axios.get('/api/auth/me');
       setUser(response.data.user);
@@ -40,7 +30,17 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchUser]);
 
   const login = async (email, password) => {
     try {
