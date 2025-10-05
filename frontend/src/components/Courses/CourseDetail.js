@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -26,14 +26,7 @@ const CourseDetail = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCourseDetails();
-    if (user?.role === 'student') {
-      checkEnrollmentStatus();
-    }
-  }, [id, user]);
-
-  const fetchCourseDetails = async () => {
+  const fetchCourseDetails = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/${id}`);
       setCourse(response.data);
@@ -44,9 +37,9 @@ const CourseDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
-  const checkEnrollmentStatus = async () => {
+  const checkEnrollmentStatus = useCallback(async () => {
     try {
       const response = await axios.get(`/api/enrollments/student/${user._id}`);
       const enrolled = response.data.some(enrollment =>
@@ -56,7 +49,14 @@ const CourseDetail = () => {
     } catch (error) {
       console.error('Error checking enrollment:', error);
     }
-  };
+  }, [id, user?._id]);
+
+  useEffect(() => {
+    fetchCourseDetails();
+    if (user?.role === 'student') {
+      checkEnrollmentStatus();
+    }
+  }, [id, user, fetchCourseDetails, checkEnrollmentStatus]);
 
   const handleEnroll = async () => {
     try {

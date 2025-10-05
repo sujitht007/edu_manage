@@ -27,13 +27,6 @@ const AssignmentDetail = () => {
     attachments: []
   });
 
-  useEffect(() => {
-    fetchAssignmentDetails();
-    if (user?.role === 'student') {
-      fetchSubmission();
-    }
-  }, [id, user?.role, fetchAssignmentDetails, fetchSubmission]);
-
   const fetchAssignmentDetails = useCallback(async () => {
     try {
       const response = await axios.get(`/api/assignments/${id}`);
@@ -55,6 +48,13 @@ const AssignmentDetail = () => {
       // No submission found - this is normal
     }
   }, [id, user?._id]);
+
+  useEffect(() => {
+    fetchAssignmentDetails();
+    if (user?.role === 'student') {
+      fetchSubmission();
+    }
+  }, [id, user?.role, fetchAssignmentDetails, fetchSubmission]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);

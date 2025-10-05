@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -30,11 +30,7 @@ const CourseList = () => {
 
   const levels = ['Beginner', 'Intermediate', 'Advanced'];
 
-  useEffect(() => {
-    fetchCourses();
-  }, [searchTerm, selectedCategory, selectedLevel]);
-
-  const fetchCourses = async (page = 1) => {
+  const fetchCourses = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -59,7 +55,11 @@ const CourseList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, selectedCategory, selectedLevel]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const handleEnroll = async (courseId) => {
     try {
