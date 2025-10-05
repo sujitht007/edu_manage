@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 // Set axios defaults
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://cms-backend-wy7j.onrender.com';
 
 const AuthContext = createContext();
 
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await axios.get('http://localhost:5000/api/auth/me');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`);
         setUser(response.data);
       } catch (error) {
         console.error('Error refreshing user data:', error);
