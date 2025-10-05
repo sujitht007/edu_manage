@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
   UserGroupIcon,
@@ -16,11 +16,7 @@ const UserManagement = () => {
   const [selectedRole, setSelectedRole] = useState('');
   const [pagination, setPagination] = useState({});
 
-  useEffect(() => {
-    fetchUsers();
-  }, [selectedRole]);
-
-  const fetchUsers = async (page = 1) => {
+  const fetchUsers = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -39,7 +35,11 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedRole]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const approveUser = async (userId) => {
     try {

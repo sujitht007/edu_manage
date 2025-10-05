@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -92,11 +92,7 @@ const AssignmentSubmissions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchSubmissions();
-  }, [id]);
-
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -107,7 +103,11 @@ const AssignmentSubmissions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-2 py-1 text-xs font-medium rounded-full";
